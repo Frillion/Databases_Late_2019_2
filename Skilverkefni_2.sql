@@ -1,4 +1,4 @@
-use 09080124440_progresstracker_v6;
+use 0908012440_progresstracker_v6;
 /* 1:
 	Smíðið trigger fyrir insert into Restrictors skipunina. 
 	Triggernum er ætlað að koma í veg fyrir að einhver áfangi sé undanfari eða samfari síns sjálfs. 
@@ -74,8 +74,12 @@ call TotalCredit('Guðrún');
 delimiter $$
 
 drop procedure if exists AddStudent $$
-create procedure AddStudent()
+create procedure AddStudent(firstname varchar(50),lastname varchar(50),dateofbirth Date,startsemester int,trackid int)
 begin
+insert into students(firstName,lastName,dob,startSemester)
+value
+(fistname,lastname,dateofbirth,startsemester);
+call AddManditoryCourses(firstname,lastname,trackid);
 end $$
 
 delimiter ;
@@ -84,8 +88,15 @@ delimiter ;
 delimiter $$
 
 drop procedure if exists AddManditoryCourses $$
-create procedure AddManditoryCourses()
+create procedure AddManditoryCourses(stnfirstname varchar(50),stnlastname varchar(50), trackid int)
 begin
+declare i int default 0;
+while i > (select count(courseNumber) from trackcourses where manditory and semester = 1)
+do
+insert into registration(studentID,trackID,courseNumber,registrationDate,semesterID)
+values
+((select studentID from students where firstName = stnfirstname and lastName = stnlastname),trackid,,current_date());
+set i = i + 1 ;
 end $$
 
 delimiter ;
